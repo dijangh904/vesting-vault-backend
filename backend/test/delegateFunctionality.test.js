@@ -62,6 +62,7 @@ describe('Delegate Functionality Tests', () => {
           delegateAddress: delegateAddress,
         });
 
+      expect(response).toSatisfyApiSpec();
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data.message).toBe('Delegate set successfully');
@@ -79,6 +80,7 @@ describe('Delegate Functionality Tests', () => {
           delegateAddress: delegateAddress,
         });
 
+      expect(response).toSatisfyApiSpec();
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);
       expect(response.body.error).toBe('Vault not found or access denied');
@@ -95,6 +97,7 @@ describe('Delegate Functionality Tests', () => {
           delegateAddress: invalidDelegate,
         });
 
+      expect(response).toSatisfyApiSpec();
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);
       expect(response.body.error).toBe('Invalid delegate address');
@@ -122,6 +125,7 @@ describe('Delegate Functionality Tests', () => {
           releaseAmount: '100.0',
         });
 
+      expect(response).toSatisfyApiSpec();
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data.message).toBe('Tokens claimed successfully by delegate');
@@ -141,6 +145,7 @@ describe('Delegate Functionality Tests', () => {
           releaseAmount: '100.0',
         });
 
+      expect(response).toSatisfyApiSpec();
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);
       expect(response.body.error).toBe('Vault not found or delegate not authorized');
@@ -161,6 +166,7 @@ describe('Delegate Functionality Tests', () => {
           releaseAmount: '100.0',
         });
 
+      expect(response).toSatisfyApiSpec();
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);
       expect(response.body.error).toContain('Insufficient releasable amount');
@@ -175,6 +181,7 @@ describe('Delegate Functionality Tests', () => {
       const response = await request(app)
         .get(`/api/delegate/${vaultAddress}/info`);
 
+      expect(response).toSatisfyApiSpec();
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data.vault.vault_address).toBe(vaultAddress);
@@ -189,6 +196,7 @@ describe('Delegate Functionality Tests', () => {
       const response = await request(app)
         .get(`/api/delegate/${nonExistentVault}/info`);
 
+      expect(response).toSatisfyApiSpec();
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);
       expect(response.body.error).toBe('Vault not found or inactive');
@@ -206,6 +214,7 @@ describe('Delegate Functionality Tests', () => {
           delegateAddress: delegateAddress,
         });
 
+      expect(setDelegateResponse).toSatisfyApiSpec();
       expect(setDelegateResponse.status).toBe(200);
       expect(setDelegateResponse.body.success).toBe(true);
 
@@ -213,6 +222,7 @@ describe('Delegate Functionality Tests', () => {
       const infoResponse = await request(app)
         .get(`/api/delegate/${vaultAddress}/info`);
 
+      expect(infoResponse).toSatisfyApiSpec();
       expect(infoResponse.status).toBe(200);
       expect(infoResponse.body.data.vault.delegate_address).toBe(delegateAddress);
 
@@ -231,6 +241,7 @@ describe('Delegate Functionality Tests', () => {
           releaseAmount: '50.0',
         });
 
+      expect(claimResponse).toSatisfyApiSpec();
       expect(claimResponse.status).toBe(200);
       expect(claimResponse.body.success).toBe(true);
 
@@ -238,6 +249,7 @@ describe('Delegate Functionality Tests', () => {
       const updatedInfoResponse = await request(app)
         .get(`/api/delegate/${vaultAddress}/info`);
 
+      expect(updatedInfoResponse).toSatisfyApiSpec();
       const updatedSubSchedule = updatedInfoResponse.body.data.vault.subSchedules[0];
       expect(parseFloat(updatedSubSchedule.amount_released)).toBe(50.0);
     });

@@ -642,6 +642,9 @@ app.get('/api/vault/:id/agreement.pdf', async (req, res) => {
     } else {
       res.destroy(error);
     }
+  }
+});
+
 // Token distribution endpoint for pie chart data
 app.get('/api/token/:address/distribution', async (req, res) => {
   try {
@@ -781,4 +784,8 @@ const startServer = async () => {
   }
 };
 
-startServer();
+if (require.main === module) {
+  startServer();
+}
+
+module.exports = app;
