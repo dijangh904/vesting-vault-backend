@@ -3,6 +3,11 @@ const { DataTypes } = require('sequelize');
 const { sequelize } = require('../database/connection');
 
 
+// TokenType enum
+const TokenType = {
+  STATIC: 'static',
+  DYNAMIC: 'dynamic'
+};
 
 const Vault = sequelize.define('Vault', {
 
@@ -60,6 +65,17 @@ const Vault = sequelize.define('Vault', {
 
   },
 
+  token_type: {
+    type: DataTypes.ENUM('static', 'dynamic'),
+    allowNull: false,
+    defaultValue: 'static',
+    comment: 'Token type: static (default) or dynamic (fee-on-transfer, rebase, tax tokens)',
+  },
+  tag: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    comment: 'Vault category tag (e.g., Seed, Private, Advisors, Team)',
+  },
   org_id: {
 
     type: DataTypes.UUID,
@@ -76,6 +92,11 @@ const Vault = sequelize.define('Vault', {
 
   },
 
+  delegate_address: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    comment: 'Authorized delegate for this vault',
+  },
   created_at: {
 
     type: DataTypes.DATE,
@@ -142,9 +163,18 @@ Vault.associate = function (models) {
 
   });
 
+  Vault.hasMany(models.Beneficiary, {
+    foreignKey: 'vault_id',
+    as: 'beneficiaries'
+  });
+  Vault.hasMany(models.SubSchedule, {
+    foreignKey: 'vault_id',
+    as: 'subSchedules'
+  });
 };
 
 
 
 module.exports = Vault;
 
+module.exports.TokenType = TokenType;

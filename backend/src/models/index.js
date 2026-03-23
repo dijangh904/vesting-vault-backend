@@ -54,6 +54,11 @@ const models = {
 
 
 
+  RefreshToken,
+  Notification,
+  DeviceToken,
+  Token,
+  OrganizationWebhook,
   sequelize,
 
 };
