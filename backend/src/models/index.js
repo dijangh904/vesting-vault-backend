@@ -25,6 +25,9 @@ const DividendDistribution = require('./dividendDistribution');
 const DividendSnapshot = require('./dividendSnapshot');
 const DeviceToken = require('./deviceToken');
 const VaultLiquidityAlert = require('./vaultLiquidityAlert');
+const VestingMilestone = require('./vestingMilestone');
+const HistoricalTokenPrice = require('./historicalTokenPrice');
+const CostBasisReport = require('./costBasisReport');
 
 
 
@@ -69,6 +72,9 @@ const models = {
   DividendRound,
   DividendDistribution,
   DividendSnapshot,
+  VestingMilestone,
+  HistoricalTokenPrice,
+  CostBasisReport,
   Token,
   OrganizationWebhook,
   Token,
