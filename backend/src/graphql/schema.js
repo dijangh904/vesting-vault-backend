@@ -11,6 +11,7 @@ const typeDefs = gql`
     owner_address: String!
     total_amount: String!
     is_active: Boolean
+    is_blacklisted: Boolean
     created_at: Date
     updated_at: Date
     org_id: String

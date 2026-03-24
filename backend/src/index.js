@@ -130,6 +130,7 @@ const VaultService = require('./services/vaultService');
 const monthlyReportJob = require('./jobs/monthlyReportJob');
 const { VaultReconciliationJob } = require('./jobs/vaultReconciliationJob');
 const vaultArchivalJob = require('./jobs/vaultArchivalJob');
+const integrityMonitoringJob = require('./jobs/integrityMonitoringJob');
 
 // Import webhooks routes
 const webhooksRoutes = require('./routes/webhooks');
@@ -1419,6 +1420,14 @@ app.get('/api/token/:address/distribution', async (req, res) => {
         } catch (jobError) {
           console.error('Failed to initialize Vault Reconciliation Job:', jobError);
           console.log('Continuing without vault reconciliation...');
+        }
+
+        // Initialize Integrity Monitoring Job
+        try {
+          integrityMonitoringJob.start();
+          console.log('Integrity Monitoring Job started successfully.');
+        } catch (jobError) {
+          console.error('Failed to initialize Integrity Monitoring Job:', jobError);
         }
 
         // Initialize Notification Service (includes cliff notification cron job)

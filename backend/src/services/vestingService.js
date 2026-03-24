@@ -144,6 +144,10 @@ class VestingService {
       throw new Error(`Vault not found: ${address}`);
     }
 
+    if (vault.is_blacklisted) {
+      throw new Error(`Vault ${address} is blacklisted due to integrity failure. Operations are disabled.`);
+    }
+
     const topUpTimestamp = timestamp ? new Date(timestamp) : new Date();
     let cliffDate = null;
     let vestingStartDate = topUpTimestamp;
@@ -195,6 +199,10 @@ class VestingService {
       throw new Error(`Vault not found: ${vaultAddress}`);
     }
 
+    if (vault.is_blacklisted) {
+      throw new Error(`Vault ${vaultAddress} is blacklisted due to integrity failure.`);
+    }
+
     const subSchedules = await SubSchedule.findAll({ where: { vault_id: vault.id } });
 
     const bWhere = { vault_id: vault.id };
@@ -227,6 +235,10 @@ class VestingService {
 
     const vault = await Vault.findOne({ where: { address: vaultAddress } });
     if (!vault) throw new Error(`Vault not found: ${vaultAddress}`);
+
+    if (vault.is_blacklisted) {
+      throw new Error(`Vault ${vaultAddress} is blacklisted due to integrity failure. Operations are disabled.`);
+    }
 
     const beneficiary = await Beneficiary.findOne({
       where: { vault_id: vault.id, address: beneficiaryAddress },
