@@ -119,9 +119,13 @@ const authService = require('./services/authService');
 const notificationService = require('./services/notificationService');
 const liquidityMonitorService = require('./services/liquidityMonitorService');
 const pdfService = require('./services/pdfService');
+<<<<<<< feat/rwa-legal-document-hashing-service
+const legalDocumentHashingService = require('./services/legalDocumentHashingService');
+=======
 const ledgerSyncService = require('./services/ledgerSyncService');
 const multiSigRevocationService = require('./services/multiSigRevocationService');
 const dividendService = require('./services/dividendService');
+>>>>>>> main
 const VaultService = require('./services/vaultService');
 const monthlyReportJob = require('./jobs/monthlyReportJob');
 const { VaultReconciliationJob } = require('./jobs/vaultReconciliationJob');
@@ -370,6 +374,100 @@ app.get('/api/vaults/:vaultAddress/summary', async (req, res) => {
   } catch (error) {
     console.error('Error fetching vault summary:', error);
     res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+const legalDocumentUploadMiddleware = express.raw({
+  type: ['application/pdf'],
+  limit: process.env.LEGAL_DOCUMENT_MAX_SIZE || '10mb',
+});
+
+app.post('/api/vaults/:id/legal-document', authService.authenticate(), legalDocumentUploadMiddleware, async (req, res) => {
+  try {
+    const record = await legalDocumentHashingService.hashAndStoreDocument({
+      vaultId: req.params.id,
+      pdfBuffer: req.body,
+      documentName: req.headers['x-document-name'] || req.query.documentName,
+      mimeType: req.headers['content-type'],
+      uploaderAddress: req.user.address,
+      uploaderRole: req.user.role,
+    });
+
+    res.status(201).json({
+      success: true,
+      data: {
+        id: record.id,
+        vault_id: record.vault_id,
+        document_type: record.document_type,
+        document_name: record.document_name,
+        sha256_hash: record.sha256_hash,
+        file_size_bytes: record.file_size_bytes,
+        uploaded_by: record.uploaded_by,
+        uploaded_at: record.uploaded_at,
+      },
+    });
+  } catch (error) {
+    console.error('Error hashing legal document:', error);
+    const status = error.message.includes('not found') ? 404
+      : error.message.includes('permission') ? 403
+      : error.message.includes('PDF') ? 400
+      : 500;
+    res.status(status).json({ success: false, error: error.message });
+  }
+});
+
+app.get('/api/vaults/:id/legal-document', authService.authenticate(), async (req, res) => {
+  try {
+    const record = await legalDocumentHashingService.getStoredDocument(
+      req.params.id,
+      req.user.address,
+      req.user.role
+    );
+
+    res.json({
+      success: true,
+      data: {
+        id: record.id,
+        vault_id: record.vault_id,
+        document_type: record.document_type,
+        document_name: record.document_name,
+        mime_type: record.mime_type,
+        file_size_bytes: record.file_size_bytes,
+        sha256_hash: record.sha256_hash,
+        uploaded_by: record.uploaded_by,
+        uploaded_at: record.uploaded_at,
+        last_verified_at: record.last_verified_at,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching legal document fingerprint:', error);
+    const status = error.message.includes('not found') ? 404
+      : error.message.includes('permission') ? 403
+      : 500;
+    res.status(status).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/api/vaults/:id/legal-document/verify', authService.authenticate(), legalDocumentUploadMiddleware, async (req, res) => {
+  try {
+    const result = await legalDocumentHashingService.verifyDocument({
+      vaultId: req.params.id,
+      pdfBuffer: req.body,
+      requesterAddress: req.user.address,
+      requesterRole: req.user.role,
+    });
+
+    res.json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    console.error('Error verifying legal document fingerprint:', error);
+    const status = error.message.includes('not found') ? 404
+      : error.message.includes('permission') ? 403
+      : error.message.includes('PDF') ? 400
+      : 500;
+    res.status(status).json({ success: false, error: error.message });
   }
 });
 

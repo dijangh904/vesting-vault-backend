@@ -171,6 +171,10 @@ Vault.associate = function (models) {
     foreignKey: 'vault_id',
     as: 'subSchedules'
   });
+  Vault.hasMany(models.VaultLegalDocument, {
+    foreignKey: 'vault_id',
+    as: 'legalDocuments'
+  });
 };
 
 
