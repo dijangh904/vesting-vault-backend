@@ -365,6 +365,9 @@ app.get("/api/admin/jobs/historical-prices/stats", async (req, res) => {
   }
 });
 
+// Mount analytics routes
+app.use('/api', analyticsRoutes);
+
 // ── Vesting Routes ────────────────────────────────────────────────────────────
 
 // POST /api/vaults - Create a new vault
