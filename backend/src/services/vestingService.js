@@ -416,6 +416,9 @@ class VestingService {
     
     const totalVested = (elapsedTimeInSeconds * totalAllocation) / totalDurationInSeconds;
     return totalVested;
+  }
+
+  /**
    * Calculate a clean break payout for a terminated beneficiary.
    *
    * Returns two-part instructions:
