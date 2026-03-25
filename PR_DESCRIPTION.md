@@ -1,163 +1,221 @@
-# 🚀 PR Description: Implement Comprehensive RBAC System with JWT Authentication
+# 🌍 PR Description: Multi-Language Legal Hash Storage for International Vesting
 
 ## 📋 Summary
-This PR implements a comprehensive Role-Based Access Control (RBAC) system for the Vesting Vault backend, addressing critical security requirements to prevent internal privilege escalation while maintaining granular access control.
+This PR implements comprehensive multi-language legal hash storage for token vesting agreements, enabling international team members to sign contracts in their native language while maintaining cryptographic integrity and legal compliance for cross-border disputes.
 
 ## 🎯 Problem Solved
-**Issue**: HR managers should be able to see vesting schedules but not change them. Junior employees with dashboard access could accidentally or maliciously revoke a founder's 4-year vesting schedule.
+**Issue**: Token vesting involves international team members who require contracts in their native language. Legal disputes need clear evidence of which specific language version was agreed upon during digital signing.
 
-**Solution**: Implemented JWT-based RBAC with four defined roles and granular permissions validated on every API request.
+**Solution**: Implemented SHA-256 hash storage for legal agreements in multiple languages with primary language tracking, creating a bridge between "Code" and "International Law."
 
 ## ✨ Features Implemented
 
-### 🔐 Four Defined Roles
-- **SuperAdmin**: Full system control and all permissions
-- **FinanceManager**: Withdrawal/Revenue operations only
-- **HRManager**: Onboarding/Metadata management only
-- **ReadOnlyAuditor**: Read-only audit access
+### 🌐 Multi-Language Support
+- **7 Default Languages**: English, Spanish, Mandarin, French, German, Japanese, Korean
+- **Easy Extensibility**: Add new languages via simple database insert
+- **Language Preference**: Investors can sign in their native language
 
-### 🛡️ Security Features
-- **JWT Authentication**: Signed claims validation on every request
-- **Granular Permissions**: Role-based access control for each endpoint
-- **Privilege Escalation Prevention**: Middleware validation prevents unauthorized access
-- **Enhanced Audit Logging**: All actions logged with user role context
+### 🔐 Cryptographic Integrity
+- **SHA-256 Hashing**: Cryptographic proof of document integrity
+- **Hash Verification**: Detect any document modifications
+- **Digital Signatures**: Cryptographic proof of signing authority
 
-### 📊 Permission Matrix
-| Role | View Vesting | Modify Vesting | Withdrawals | Onboarding | Audit Logs |
-|------|-------------|----------------|-------------|------------|------------|
-| SuperAdmin | ✅ | ✅ | ✅ | ✅ | ✅ |
-| FinanceManager | ✅ | ❌ | ✅ | ❌ | ✅ |
-| HRManager | ✅ | ❌ | ❌ | ✅ | ✅ |
-| ReadOnlyAuditor | ✅ | ❌ | ❌ | ❌ | ✅ |
+### ⚖️ Legal Compliance
+- **Primary Language Tracking**: Clear record of which version was signed
+- **Complete Audit Trail**: Immutable history of all changes
+- **Dispute Resolution Support**: Comprehensive legal details endpoint
+
+### 📊 Database Schema
+- **5 Core Tables**: investors, languages, token_purchase_agreements, legal_agreement_hashes, legal_agreement_audit_log
+- **Single Primary Constraint**: Database trigger ensures one primary language per agreement
+- **Comprehensive Indexing**: Optimized for performance and legal queries
 
 ## 🔧 Technical Implementation
 
 ### New Files Added
-- `config/rbac.js` - Role definitions and permission matrix
-- `middleware/authMiddleware.js` - JWT authentication and RBAC validation
-- `routes/auth.js` - Authentication and token management endpoints
-- `tests/rbac.test.js` - Comprehensive RBAC test suite
-- `RBAC_IMPLEMENTATION.md` - Complete implementation documentation
+- `database/schema.sql` - Complete multi-language legal storage schema
+- `database/migrate.js` - Database migration script
+- `models/LegalAgreement.js` - Legal agreement model with hash operations
+- `models/Investor.js` - Investor management model
+- `models/database.js` - PostgreSQL connection and utilities
+- `routes/legalAgreements.js` - RESTful API endpoints
+- `tests/legalAgreements.test.js` - Comprehensive test suite
+- `jest.config.js` - Test configuration with coverage
+- `tests/setup.js` - Test environment setup
 
 ### Modified Files
-- `package.json` - Added JWT dependencies (`jsonwebtoken`, `bcryptjs`)
-- `index.js` - Integrated RBAC middleware on all endpoints
-- `middleware/auditMiddleware.js` - Enhanced with role tracking
-- `.env.example` - Added JWT configuration variables
-- `.github/workflows/test.yml` - Added RBAC-specific pipeline tests
+- `package.json` - Added PostgreSQL, testing dependencies
+- `index.js` - Integrated multi-language API and middleware
+- `.env.example` - Database configuration template
+- `README.md` - Complete documentation with API examples
 
-### API Changes
-- **New Auth Endpoints**:
-  - `POST /api/auth/token/generate` - Generate JWT tokens
-  - `GET /api/auth/token/verify` - Verify current token
-  - `GET /api/auth/roles` - List available roles
-  - `GET /api/auth/permissions/:role` - Get role permissions
-  - `GET /api/auth/test-access` - Test current user access
+### API Endpoints
+- **Language Management**:
+  - `GET /api/legal/languages` - List supported languages
 
-- **Protected Endpoints** (All now require valid JWT):
-  - `GET /api/audit/*` - Role-based audit access
-  - `POST /api/vesting/*` - SuperAdmin only for modifications
-  - `POST /api/admin/*` - SuperAdmin only
+- **Agreement Operations**:
+  - `POST /api/legal/agreements` - Create new agreement
+  - `GET /api/legal/agreements/:id/hashes` - Get all language versions
+  - `GET /api/legal/agreements/:id/primary-hash` - Get primary signed version
+  - `POST /api/legal/agreements/:id/hashes` - Add/update language version
+  - `POST /api/legal/agreements/:id/primary-language` - Set primary (sign)
 
-## 🔒 Security Improvements
+- **Legal Compliance**:
+  - `POST /api/legal/agreements/:id/verify` - Verify document integrity
+  - `GET /api/legal/agreements/:id/audit` - Get complete audit trail
+  - `GET /api/legal/agreements/:id/legal-details` - Dispute resolution data
 
-### Prevention of Internal Privilege Escalation
-- Every API request validated against signed JWT claims
-- Role hierarchy enforced at middleware level
-- No bypass mechanisms for role validation
-- Audit trails track user ID and role for all actions
+- **Investor Management**:
+  - `GET /api/legal/investors/:walletAddress/agreements` - Get investor agreements
 
-### Enhanced Audit Trail
-- All audit entries now include:
-  - User role (`userRole`)
-  - User ID (`userId`)
-  - Original request metadata
-  - Permission validation results
+## 🔒 Security & Compliance Features
 
-### JWT Security
-- Cryptographically signed claims prevent tampering
-- Configurable token expiration
-- Required claims validation (id, email, role)
+### Cryptographic Security
+- SHA-256 hashing for all legal documents
+- Digital signature storage for signing verification
+- Wallet address validation for blockchain integration
+
+### Legal Compliance
+- Primary language tracking with timestamp
+- Complete audit trail for all changes
+- Immutable hash storage prevents tampering
+
+### Data Integrity
+- Database constraints ensure data consistency
+- Transaction support for atomic operations
+- Comprehensive error handling and logging
 
 ## 🧪 Testing
 
 ### Comprehensive Test Coverage
-- Token generation for all roles
-- Permission validation tests
-- Access control enforcement
-- Unauthorized access prevention
-- Role hierarchy verification
+- **Unit Tests**: Model functions and hash calculations
+- **Integration Tests**: All API endpoints
+- **Security Tests**: Input validation and access control
+- **Legal Compliance Tests**: Audit trail and hash verification
 
-### Pipeline Integration
-- Added RBAC-specific test job
-- Enhanced security audit
-- Integration tests for all authentication flows
+### Test Categories
+- Language management
+- Agreement creation and management
+- Hash calculation and verification
+- Primary language setting
+- Audit trail functionality
+- Legal dispute resolution queries
 
 ## 📖 Usage Examples
 
-### Generate Token for HR Manager
+### Create Multi-Language Agreement
 ```bash
-curl -X POST "http://localhost:3000/api/auth/token/generate" \
+# Create agreement
+curl -X POST "http://localhost:3000/api/legal/agreements" \
   -H "Content-Type: application/json" \
   -d '{
-    "id": "hr-manager-1",
-    "email": "hr@company.com",
-    "role": "hr_manager"
+    "walletAddress": "0x1234567890123456789012345678901234567890",
+    "email": "investor@example.com",
+    "name": "International Investor"
+  }'
+
+# Add English version
+curl -X POST "http://localhost:3000/api/legal/agreements/{id}/hashes" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "languageCode": "en",
+    "content": "Token Purchase Agreement in English...",
+    "isPrimary": false
+  }'
+
+# Add Spanish version
+curl -X POST "http://localhost:3000/api/legal/agreements/{id}/hashes" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "languageCode": "es",
+    "content": "Contrato de Compra de Tokens en Español...",
+    "isPrimary": false
   }'
 ```
 
-### Attempt Unauthorized Access (Will Fail)
+### Digital Signing in Native Language
 ```bash
-curl -X POST "http://localhost:3000/api/vesting/cliff-date" \
-  -H "Authorization: Bearer <hr-manager-token>" \
+# Sign Spanish version as primary
+curl -X POST "http://localhost:3000/api/legal/agreements/{id}/primary-language" \
   -H "Content-Type: application/json" \
   -d '{
-    "beneficiaryId": "founder-123",
-    "previousCliffDate": "2024-01-01", 
-    "newCliffDate": "2024-06-01"
+    "languageCode": "es",
+    "signerWallet": "0x1234567890123456789012345678901234567890",
+    "digitalSignature": "0xabcdef..."
   }'
-# Response: 403 Forbidden - Insufficient privileges
+```
+
+### Legal Dispute Resolution
+```bash
+# Get comprehensive legal details
+curl -X GET "http://localhost:3000/api/legal/agreements/{id}/legal-details" \
+  -H "Authorization: Bearer <token>"
+
+# Verify document integrity
+curl -X POST "http://localhost:3000/api/legal/agreements/{id}/verify" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "languageCode": "es",
+    "content": "Contrato de Compra de Tokens en Español..."
+  }'
 ```
 
 ## 🚀 Breaking Changes
 
-### Required Configuration
-Add to `.env` file:
+### Required Dependencies
 ```bash
-JWT_SECRET=your-super-secret-jwt-key-change-in-production
-JWT_EXPIRES_IN=24h
+npm install pg jest supertest nodemon
 ```
 
-### API Changes
-- All protected endpoints now require `Authorization: Bearer <token>` header
-- Existing integrations must implement JWT authentication
+### Database Setup
+```bash
+# Set up environment
+cp .env.example .env
+# Configure PostgreSQL connection
+
+# Run migration
+npm run migrate
+```
+
+### New Environment Variables
+```bash
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=vesting_vault
+DB_USER=postgres
+DB_PASSWORD=password
+```
 
 ## 📋 Checklist
 
-- [x] Four RBAC roles implemented (SuperAdmin, FinanceManager, HRManager, ReadOnlyAuditor)
-- [x] JWT authentication with signed claims validation
-- [x] Granular permission system
-- [x] Prevention of internal privilege escalation
-- [x] Enhanced audit logging with role tracking
-- [x] Comprehensive test suite
-- [x] Pipeline integration
-- [x] Documentation updated
-- [x] Security configuration added
+- [x] Multi-language legal document storage
+- [x] SHA-256 hash verification system
+- [x] Primary language tracking for digital signing
+- [x] Complete audit trail for legal compliance
+- [x] 7 default languages with easy extensibility
+- [x] RESTful API with comprehensive endpoints
+- [x] Database schema with constraints and triggers
+- [x] Comprehensive test suite with high coverage
+- [x] Legal dispute resolution support
+- [x] International legal compliance features
+- [x] Cryptographic integrity verification
+- [x] Complete documentation and examples
 
-## 🔐 Security Benefits
+## 🔐 Legal Benefits
 
-1. **Prevents Internal Privilege Escalation** - Junior employees cannot access founder-level functions
-2. **Granular Access Control** - Each role has exactly the permissions needed
-3. **Audit Trail** - All actions logged with role context
-4. **JWT Security** - Cryptographically signed claims prevent tampering
-5. **Defense in Depth** - Multiple validation layers
+1. **International Compliance** - Supports multiple languages for global teams
+2. **Cryptographic Evidence** - SHA-256 hashes provide tamper-proof evidence
+3. **Primary Language Proof** - Clear record of which version was signed
+4. **Audit Trail** - Complete history for legal proceedings
+5. **Dispute Resolution** - Comprehensive endpoint for legal queries
 
-## 📝 Migration Guide
+## 🌍 Impact
 
-1. Update environment configuration with JWT secret
-2. Implement JWT authentication in client applications
-3. Generate appropriate tokens for users based on their roles
-4. Update API calls to include Authorization header
-5. Test access control for each user role
+This implementation enables Vesting Vault to:
+- Serve international teams in their native languages
+- Provide legally binding evidence for cross-border disputes
+- Maintain cryptographic integrity of all legal documents
+- Bridge the gap between smart contracts and international law
+- Support regulatory compliance across jurisdictions
 
-This implementation ensures that HR managers can view vesting schedules but cannot modify them, while maintaining comprehensive audit trails and preventing unauthorized access to critical system functions.
+The system ensures that in multi-lingual legal disputes, arbitrators can query the backend to find exactly which set of translated legal terms was agreed upon, providing clear, cryptographically verified evidence for international legal proceedings.
