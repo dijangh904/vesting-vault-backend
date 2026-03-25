@@ -1,7 +1,7 @@
 {
   "name": "vesting-backend",
   "version": "1.0.0",
-  "description": "API for Vesting Vault",
+  "description": "API for Vesting Vault - Multi-Language Legal Hash Storage",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
