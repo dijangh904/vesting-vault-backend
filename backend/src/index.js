@@ -152,6 +152,7 @@ const { VaultReconciliationJob } = require("./jobs/vaultReconciliationJob");
 const vaultArchivalJob = require("./jobs/vaultArchivalJob");
 const historicalPriceTrackingJob = require("./jobs/historicalPriceTrackingJob");
 const integrityMonitoringJob = require("./jobs/integrityMonitoringJob");
+const vaultRegistryIndexingJob = require("./jobs/vaultRegistryIndexingJob");
 
 // Import webhooks routes
 const webhooksRoutes = require("./routes/webhooks");
@@ -159,6 +160,7 @@ const organizationRoutes = require("./routes/organization");
 const hsmRoutes = require("./routes/hsm");
 const historicalPriceRoutes = require("./routes/historicalPriceRoutes");
 const auditorRoutes = require("./routes/auditor");
+const vaultRegistryRoutes = require("./routes/vaultRegistry");
 
 app.get("/", (req, res) => {
   res.json({ message: "Vesting Vault API is running!" });
@@ -319,6 +321,9 @@ app.use("/api/historical-prices", historicalPriceRoutes);
 
 // Mount auditor routes (read-only auditor API for due diligence)
 app.use("/api/auditor", auditorRoutes);
+
+// Mount vault registry routes (ecosystem-wide vault discovery)
+app.use("/api/registry", vaultRegistryRoutes);
 
 // Historical price tracking job management endpoints
 app.post("/api/admin/jobs/historical-prices/start", async (req, res) => {
@@ -2085,6 +2090,14 @@ const startServer = async () => {
         "Failed to initialize Notification Service:",
         notificationError,
       );
+    }
+
+    // Initialize Vault Registry Indexing Job
+    try {
+      vaultRegistryIndexingJob.start();
+      console.log("Vault Registry Indexing Job started successfully.");
+    } catch (jobError) {
+      console.error("Failed to initialize Vault Registry Indexing Job:", jobError);
     }
 
     // Start HTTP server
