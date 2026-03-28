@@ -20,6 +20,7 @@ const VaultLiquidityAlert = require("./vaultLiquidityAlert");
 const AnnualVestingStatement = require("./annualVestingStatement");
 const VestingMilestone = require("./vestingMilestone");
 const HistoricalTokenPrice = require("./historicalTokenPrice");
+const HistoricalTVL = require("./historicalTVL");
 const CostBasisReport = require("./costBasisReport");
 const AuditorToken = require("./auditorToken");
 const VaultRegistry = require("./vaultRegistry");
@@ -70,6 +71,7 @@ const models = {
   DividendSnapshot,
   VestingMilestone,
   HistoricalTokenPrice,
+  HistoricalTVL,
   CostBasisReport,
   AuditorToken,
   AnnualVestingStatement,

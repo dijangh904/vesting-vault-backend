@@ -164,6 +164,7 @@ const auditorRoutes = require("./routes/auditor");
 const vaultRegistryRoutes = require("./routes/vaultRegistry");
 const contractUpgradeRoutes = require("./routes/contractUpgrade");
 const conversionAnalyticsRoutes = require("./routes/conversionAnalytics");
+const correlationRoutes = require("./routes/correlationRoutes");
 
 app.get("/", (req, res) => {
   res.json({ message: "Vesting Vault API is running!" });
@@ -333,6 +334,9 @@ app.use("/api/contract-upgrade", contractUpgradeRoutes);
 
 // Mount conversion analytics routes (path payment analytics and cost basis tracking)
 app.use("/api/conversions", conversionAnalyticsRoutes);
+
+// Mount TVL-price correlation analysis routes
+app.use("/api/correlation", correlationRoutes);
 
 // Historical price tracking job management endpoints
 app.post("/api/admin/jobs/historical-prices/start", async (req, res) => {
