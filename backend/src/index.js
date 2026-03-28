@@ -53,9 +53,9 @@ const {
 } = require("./middleware/vaultPause.middleware");
 
 // Import and apply Rule 144 compliance middleware
-const { 
-  rule144ComplianceMiddleware, 
-  recordClaimComplianceMiddleware 
+const {
+  rule144ComplianceMiddleware,
+  recordClaimComplianceMiddleware
 } = require('./middleware/rule144Compliance.middleware');
 
 // Apply vault status middleware to all API routes
@@ -155,6 +155,59 @@ const integrityMonitoringJob = require("./jobs/integrityMonitoringJob");
 const vaultRegistryIndexingJob = require("./jobs/vaultRegistryIndexingJob");
 const stellarPathPaymentListener = require("./services/stellarPathPaymentListener");
 
+const KycStatus = require("./KycStatus");
+const KycNotification = require("./KycNotification");
+const ContractUpgradeProposal = require("./contractUpgradeProposal");
+const ContractUpgradeSignature = require("./contractUpgradeSignature");
+const ContractUpgradeAuditLog = require("./contractUpgradeAuditLog");
+const CertifiedBuild = require("./certifiedBuild");
+const ConversionEvent = require("./conversionEvent");
+const MilestoneCelebrationWebhook = require("./milestoneCelebrationWebhook");
+const {
+  Token,
+  initTokenModel
+} = require("./token");
+
+const models = {
+  ClaimsHistory,
+  Vault,
+  SubSchedule,
+  TVL,
+  Beneficiary,
+  Organization,
+  Notification,
+  RefreshToken,
+  RevocationProposal,
+  RevocationSignature,
+  MultiSigConfig,
+  DividendRound,
+  DividendDistribution,
+  DividendSnapshot,
+  DeviceToken,
+  VaultLegalDocument,
+  VaultLiquidityAlert,
+  AnnualVestingStatement,
+  VestingMilestone,
+  HistoricalTokenPrice,
+  HistoricalTVL,
+  CostBasisReport,
+  AuditorToken,
+  VaultRegistry,
+  Rule144Compliance,
+  TaxCalculation,
+  TaxJurisdiction,
+  KycStatus,
+  KycNotification,
+  ContractUpgradeProposal,
+  ContractUpgradeSignature,
+  ContractUpgradeAuditLog,
+  CertifiedBuild,
+  ConversionEvent,
+  MilestoneCelebrationWebhook,
+  Token,
+  sequelize
+}; initTokenModel
+
 // Import webhooks routes
 const webhooksRoutes = require("./routes/webhooks");
 const organizationRoutes = require("./routes/organization");
@@ -165,6 +218,7 @@ const vaultRegistryRoutes = require("./routes/vaultRegistry");
 const contractUpgradeRoutes = require("./routes/contractUpgrade");
 const conversionAnalyticsRoutes = require("./routes/conversionAnalytics");
 const correlationRoutes = require("./routes/correlationRoutes");
+const kycStatusRoutes = require("./routes/kycStatusRoutes");
 
 app.get("/", (req, res) => {
   res.json({ message: "Vesting Vault API is running!" });
@@ -337,6 +391,9 @@ app.use("/api/conversions", conversionAnalyticsRoutes);
 
 // Mount TVL-price correlation analysis routes
 app.use("/api/correlation", correlationRoutes);
+
+// Mount KYC status management routes
+app.use("/api/kyc-status", kycStatusRoutes);
 
 // Historical price tracking job management endpoints
 app.post("/api/admin/jobs/historical-prices/start", async (req, res) => {
@@ -627,10 +684,10 @@ app.post("/api/merkle-vault/build-tree", async (req, res) => {
 app.post("/api/claims", claimRateLimiter, async (req, res) => {
   try {
     const claim = await indexingService.processClaim(req.body);
-    
+
     // Apply recording middleware after successful claim
-    await recordClaimComplianceMiddleware(req, res, () => {});
-    
+    await recordClaimComplianceMiddleware(req, res, () => { });
+
     res.status(201).json({ success: true, data: claim });
   } catch (error) {
     console.error("Error processing claim:", error);
@@ -641,13 +698,13 @@ app.post("/api/claims", claimRateLimiter, async (req, res) => {
 app.post("/api/claims/batch", claimRateLimiter, async (req, res) => {
   try {
     const result = await indexingService.processBatchClaims(req.body.claims);
-    
+
     // Apply recording middleware for each claim in batch
     for (const claim of req.body.claims) {
       const mockReq = { body: claim, path: '/api/claims/batch' };
-      await recordClaimComplianceMiddleware(mockReq, res, () => {});
+      await recordClaimComplianceMiddleware(mockReq, res, () => { });
     }
-    
+
     res.json({ success: true, data: result });
   } catch (error) {
     console.error("Error processing batch claims:", error);
@@ -1670,7 +1727,7 @@ app.post("/api/statements/annual/generate", async (req, res) => {
     }
 
     const statement = await annualVestingStatementService.generateAnnualStatement(userAddress, parseInt(year));
-    
+
     res.status(201).json({
       success: true,
       data: {
@@ -1704,7 +1761,7 @@ app.get("/api/statements/annual/:userAddress/:year", async (req, res) => {
     const { userAddress, year } = req.params;
 
     const statement = await annualVestingStatementService.getStatement(userAddress, parseInt(year));
-    
+
     res.json({
       success: true,
       data: {
@@ -1753,7 +1810,7 @@ app.get("/api/statements/annual/:userAddress", async (req, res) => {
       limit: parseInt(limit),
       offset: parseInt(offset),
     });
-    
+
     res.json({
       success: true,
       data: {
@@ -1826,12 +1883,12 @@ app.post("/api/statements/annual/verify", async (req, res) => {
     // For verification, we would need the original PDF content
     // This endpoint would typically be used with the PDF file upload
     const isValid = await annualVestingStatementService.verifyStatementSignature(
-      userAddress, 
-      parseInt(year), 
-      signature, 
+      userAddress,
+      parseInt(year),
+      signature,
       Buffer.from(pdfHash, 'hex')
     );
-    
+
     res.json({
       success: true,
       data: {
@@ -1855,14 +1912,14 @@ app.get("/api/statements/annual/:userAddress/:year/summary", async (req, res) =>
     const { userAddress, year } = req.params;
 
     const summary = await annualVestingStatementService.getStatementStats(userAddress, parseInt(year));
-    
+
     if (!summary) {
       return res.status(404).json({
         success: false,
         error: `Statement summary not found for ${userAddress} year ${year}`,
       });
     }
-    
+
     res.json({
       success: true,
       data: summary,
@@ -1940,8 +1997,8 @@ app.get("/api/user/:address/consolidated", async (req, res) => {
     let parsedVaultAddresses = null;
     if (vaultAddresses) {
       try {
-        parsedVaultAddresses = Array.isArray(vaultAddresses) 
-          ? vaultAddresses 
+        parsedVaultAddresses = Array.isArray(vaultAddresses)
+          ? vaultAddresses
           : JSON.parse(vaultAddresses);
       } catch (e) {
         return res.status(400).json({

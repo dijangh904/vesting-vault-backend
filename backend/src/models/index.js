@@ -27,22 +27,14 @@ const VaultRegistry = require("./vaultRegistry");
 const Rule144Compliance = require("./rule144Compliance");
 const TaxCalculation = require("./taxCalculation");
 const TaxJurisdiction = require("./taxJurisdiction");
-const KycStatus = require("./kycStatus");
-const KycNotification = require("./kycNotification");
+const KycStatus = require("./KycStatus");
+const KycNotification = require("./KycNotification");
 const ContractUpgradeProposal = require("./contractUpgradeProposal");
-const ContractUpgradeSignature = require("./contractUpgradeSignature");
-const ContractUpgradeAuditLog = require("./contractUpgradeAuditLog");
 const CertifiedBuild = require("./certifiedBuild");
 const ConversionEvent = require("./conversionEvent");
 const MilestoneCelebrationWebhook = require("./milestoneCelebrationWebhook");
-
-const { Token, initTokenModel } = require("./token");
-const {
-  OrganizationWebhook,
-  initOrganizationWebhookModel,
-} = require("./organizationWebhook");
-
-initTokenModel(sequelize);
+const Token = require("./token");
+const OrganizationWebhook = require("./organizationWebhook");
 
 initOrganizationWebhookModel(sequelize);
 
